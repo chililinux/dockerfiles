@@ -1,0 +1,49 @@
+# Etapa base
+FROM voidlinux/voidlinux:latest
+LABEL version="1.2"
+LABEL description="ChiliLinux Build Void Package/ISO"
+LABEL maintainer="Vilmar Catafesta <vcatafesta@gmail.com>"
+
+# Configurar repositórios confiáveis e atualizar o sistema
+RUN echo "repository=https://repo-fastly.voidlinux.org/current" > /etc/xbps.d/00-repository-main.conf && \
+    echo "repository=https://repo-fastly.voidlinux.org/current/nonfree" >> /etc/xbps.d/00-repository-main.conf && \
+    echo "repository=https://repo-fastly.voidlinux.org/current/multilib" >> /etc/xbps.d/00-repository-main.conf && \
+    echo "repository=https://repo-fastly.voidlinux.org/current/multilib/nonfree" >> /etc/xbps.d/00-repository-main.conf && \
+    echo "repository=https://mirrors.servercentral.com/voidlinux/current" >> /etc/xbps.d/00-repository-main.conf && \
+    echo "repository=https://mirrors.servercentral.com/voidlinux/current/nonfree" >> /etc/xbps.d/00-repository-main.conf && \
+    echo "repository=https://mirrors.servercentral.com/voidlinux/current/multilib" >> /etc/xbps.d/00-repository-main.conf && \
+    echo "repository=https://mirrors.servercentral.com/voidlinux/current/multilib/nonfree" >> /etc/xbps.d/00-repository-main.conf && \
+    xbps-install -Suy xbps && \
+    xbps-install -Suy
+
+# Configurações e arquivos essenciais
+COPY etc/ /etc
+COPY usr/ /usr
+
+# Configuração adicional
+RUN useradd -m builduser && \
+    echo 'builduser:451960' | chpasswd && \
+    echo 'builduser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    useradd -m vcatafesta -G wheel,tty && \
+    echo 'vcatafesta:451960' | chpasswd && \
+    echo 'vcatafesta ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+RUN echo 'root:256' | chpasswd
+
+# Copiar arquivos do /etc/skel para o /root
+RUN cp -Rpa /etc/skel/. /root/ && \
+    chown -R root:root /root
+
+# Instalar pacotes essenciais
+RUN xbps-install -y xtools bash sudo openssh tmate xz zip p7zip jq git github-cli kmod ncurses which vpm vsv \
+            libstdc++ nano curl tree duf gettext rsync util-linux coreutils sed grep btrfs-progs e2fsprogs \
+            exfatprogs dosfstools xfsprogs exa pv dialog parted lvm2 cryptsetup
+
+# Remover pacotes obsoletos
+RUN xbps-remove -oO -y
+
+# Definir o diretório de trabalho
+WORKDIR /root
+
+# Comando padrão quando o container for iniciado
+CMD ["/bin/bash"]
