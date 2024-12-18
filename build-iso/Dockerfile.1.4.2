@@ -1,0 +1,72 @@
+FROM manjarolinux/base:latest AS base
+
+LABEL version="1.4.2"
+LABEL description="Community Build Package/ISO"
+LABEL maintainer="Tales A. Mendonça <talesam@gmail.com>"
+
+# Squashing the whole base image into one layer
+FROM scratch AS build
+COPY --from=base / /
+
+COPY pacman.conf /etc/pacman.conf
+
+ENV LANG=en_US.UTF-8
+ENV PATH="/usr/bin:${PATH}"
+
+RUN uname -m \
+    && pacman-key --init \
+    && pacman-key --populate archlinux manjaro \
+    && echo 'Server = https://mirrors2.manjaro.org/stable/$repo/$arch' > /etc/pacman.d/mirrorlist \
+    && pacman-key -r 45EC44879815E2A6 \
+    && pacman-key --lsign-key 45EC44879815E2A6 \
+    && pacman-key --recv-keys AECEEE84E52BBFAA9F1C9DF01EA0CEEEB09B44A3 \
+    && pacman-key --lsign-key AECEEE84E52BBFAA9F1C9DF01EA0CEEEB09B44A3 \
+    && pacman -Syyu --noconfirm --needed \
+        archlinux-keyring \
+        manjaro-keyring \
+        biglinux-keyring \
+        community-keyring \
+    && pacman-key --populate archlinux manjaro \
+    && pacman -Sy \
+    && pacman -S --needed --noconfirm \
+        base \
+        curl \
+        duf \
+        fakeroot \
+        git \
+        github-cli \
+        gnupg \
+        inetutils \
+        jq \
+        libarchive \
+        manjaro-chrootbuild \
+        nano \
+        openssh \
+        openssl \
+        rsync \
+        tmate \
+        tree \
+        wget \
+        zip \
+        && pacman -Scc --noconfirm \
+        && rm -rf /var/cache/pacman/pkg/* \
+        && rm -rf /usr/share/{doc,man,info} \
+        && rm -rf /var/log/* \
+        && rm -rf /tmp/* \
+        && rm -rf /var/tmp/* \
+        && sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
+        && locale-gen \
+        && echo 'PACKAGER="Community Package/ISO Build <talesam@gmail.com>"' >> /etc/makepkg.conf \
+        && useradd -m builduser \
+        && echo 'builduser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
+        && rm -rf /usr/share/gtk-doc \
+        && rm -rf /usr/lib/python*/test \
+        && rm -rf /usr/lib/python*/site-packages/*/tests \
+        && find /usr/lib -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
+
+# Final docker image 
+FROM scratch AS release
+COPY --from=build / /
+USER builduser
+WORKDIR /home/builduser
+CMD ["/bin/bash"]

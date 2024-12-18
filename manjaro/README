@@ -1,0 +1,47 @@
+Criar uma imagem a partir de um Dockerfile é uma tarefa simples que utiliza o comando docker build. Abaixo estão os passos detalhados:
+
+1. Prepare o Dockerfile
+Certifique-se de que você tem um arquivo chamado Dockerfile no diretório onde deseja criar a imagem. Um exemplo básico pode ser:
+
+Dockerfile
+# Usando uma imagem base do Ubuntu
+FROM ubuntu:latest
+
+# Definindo o autor
+LABEL maintainer="seu_email@exemplo.com"
+
+# Atualizando pacotes e instalando dependências
+RUN apt-get update && apt-get install -y curl
+
+# Definindo o diretório de trabalho
+WORKDIR /app
+
+# Copiando arquivos para o contêiner
+COPY . /app
+
+# Definindo o comando padrão
+CMD ["bash"]
+2. Execute o comando para criar a imagem
+No terminal, navegue até o diretório onde o Dockerfile está localizado e use o seguinte comando:
+
+docker build -t nome_da_imagem:tag .
+-t nome_da_imagem:tag: Especifica o nome e a tag da imagem. Por exemplo: meu_app:1.0.
+.: Indica que o contexto de build é o diretório atual.
+Exemplo:
+
+docker build -t meu_app:1.0 .
+3. Verifique se a imagem foi criada
+Após o build, você pode verificar se a imagem foi criada com sucesso:
+
+docker images
+Você verá uma saída semelhante a:
+
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+meu_app      1.0       abcdef123456   10 seconds ago   85MB
+4. Execute um contêiner a partir da imagem
+Para testar a imagem criada, execute um contêiner:
+
+docker run -it nome_da_imagem:tag
+Exemplo:
+
+docker run -it meu_app:1.0
