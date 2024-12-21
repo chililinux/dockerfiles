@@ -1,3 +1,3 @@
-# chili-pkgbuild-template
+# dockerfiles
 
-Template for Chili Linux packages
+Dockerfiles for Chili Linux container

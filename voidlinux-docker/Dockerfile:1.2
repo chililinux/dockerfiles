@@ -1,6 +1,6 @@
 # Etapa base
 FROM voidlinux/voidlinux:latest
-LABEL version="1.3"
+LABEL version="1.2"
 LABEL description="ChiliLinux Build Void Package/ISO"
 LABEL maintainer="Vilmar Catafesta <vcatafesta@gmail.com>"
 
@@ -44,10 +44,6 @@ RUN xbps-install -y xtools bash sudo openssh tmate xz zip p7zip jq git github-cl
 
 # Remover pacotes obsoletos
 RUN xbps-remove -oO -y
-
-# Clonar o repositório no home do usuário builduser
-RUN git clone https://github.com/chililinux/chili-void-packages /home/builduser/chili-void-packages && \
-    chown -R builduser:builduser /home/builduser/chili-void-packages
 
 # Definir o diretório de trabalho
 WORKDIR /root
