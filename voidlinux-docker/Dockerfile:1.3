@@ -1,6 +1,6 @@
 # Etapa base
 FROM voidlinux/voidlinux:latest
-LABEL version="1.4"
+LABEL version="1.3"
 LABEL description="ChiliLinux Build Void Package/ISO"
 LABEL maintainer="Vilmar Catafesta <vcatafesta@gmail.com>"
 
@@ -26,12 +26,9 @@ RUN  useradd -m -G wheel,audio,video,cdrom,optical,kvm,xbuilder builduser && \
     echo 'builduser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     useradd -m -G wheel,audio,video,cdrom,optical,kvm,xbuilder vcatafesta && \
     echo 'vcatafesta:451960' | chpasswd && \
-    echo 'vcatafesta ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
-    useradd -m -G wheel,audio,video,cdrom,optical,kvm,xbuilder anon && \
-    echo 'anon:voidlinux' | chpasswd && \
-    echo 'anon ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+    echo 'vcatafesta ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-RUN echo 'root:voidlinux' | chpasswd && \
+RUN echo 'root:256' | chpasswd && \
     echo 'root   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     echo '%sudo  ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
@@ -43,7 +40,7 @@ RUN cp -Rpa /etc/skel/. /root/ && \
 # Instalar pacotes essenciais
 RUN xbps-install -y xtools bash sudo openssh tmate xz zip p7zip jq git github-cli kmod ncurses which vpm vsv \
             libstdc++ nano curl tree duf gettext rsync util-linux coreutils sed grep btrfs-progs e2fsprogs \
-            exfatprogs dosfstools xfsprogs exa pv dialog parted lvm2 cryptsetup fastfetch
+            exfatprogs dosfstools xfsprogs exa pv dialog parted lvm2 cryptsetup
 
 # Remover pacotes obsoletos
 RUN xbps-remove -oO -y
@@ -52,11 +49,8 @@ RUN xbps-remove -oO -y
 RUN git clone https://github.com/chililinux/chili-void-packages /home/builduser/chili-void-packages && \
     chown -R builduser:builduser /home/builduser/chili-void-packages
 
-USER builduser
 # Definir o diretório de trabalho
-#WORKDIR /root
-WORKDIR /home/builduser
-
+WORKDIR /root
 
 # Comando padrão quando o container for iniciado
 CMD ["/bin/bash"]
