@@ -1,8 +1,10 @@
 # Etapa base
 FROM manjarolinux/base:latest AS base
-LABEL version="1.5.1"
-LABEL description="ChiliLinux Build Package/ISO"
 LABEL maintainer="Vilmar Catafesta <vcatafesta@gmail.com>"
+LABEL description="ChiliLinux Build Package/ISO"
+LABEL license="MIT"
+LABEL version="1.6"
+LABEL imagename="build-iso"
 
 # Etapa de construção
 FROM scratch AS build
@@ -13,8 +15,10 @@ COPY pacman.conf /etc/pacman.conf
 COPY pacman.d /etc/pacman.d
 COPY locale.gen /etc/
 COPY locale.conf /etc/
+COPY usr /usr
 
-ENV LANG=en_US.UTF-8
+#ENV LANG=en_US.UTF-8
+ENV LANG=pt_BR.UTF-8
 ENV PATH="/usr/bin:${PATH}"
 
 # Configuração inicial
@@ -56,7 +60,7 @@ RUN pacman -Sy --needed --noconfirm \
       libarchive manjaro-chrootbuild nano openssh openssl rsync \
       tmate tree wget zip shfmt pyenv \
       chili-skel chili-nano-config chili-utils chili-install \
-      chili-fetch chili-clonedisk
+      chili-fetch chili-clonedisk binutils yay
 
 # Limpeza de pacotes e sistema
 RUN pacman -Scc --noconfirm && \
@@ -78,6 +82,11 @@ RUN echo 'root:256' | chpasswd
 # Copiar arquivos do /etc/skel para o /root
 RUN cp -Rpa /etc/skel/. /root/ && \
     chown -R root:root /root
+
+RUN chown root:root /usr/bin/sudo && \
+    chown root:root /etc/sudo.conf && \
+    chmod 4755 /usr/bin/sudo && \
+    chmod 0644 /etc/sudo.conf
 
 # Otimização e remoção de arquivos desnecessários
 RUN rm -rf /usr/share/gtk-doc /usr/lib/python*/test /usr/lib/python*/site-packages/*/tests && \
