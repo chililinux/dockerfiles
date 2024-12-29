@@ -1,0 +1,7 @@
+FROM archlinux:latest
+
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm bash && \
+    mkdir -p /upper /work /lower /merged
+
+CMD ["bash"]

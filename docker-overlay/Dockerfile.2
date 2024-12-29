@@ -1,0 +1,18 @@
+# Use Arch Linux como base
+FROM archlinux:latest
+
+# Atualize o sistema e instale pacotes necessários
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+        base-devel \
+        bash \
+        util-linux \
+        coreutils \
+        e2fsprogs \
+        && pacman -Scc --noconfirm
+
+# Crie diretórios para o overlay
+RUN mkdir -p /upper /work /lower /merged
+
+# Defina um comando padrão para montar o overlay e iniciar um shell
+CMD ["sh", "-c", "mount -t overlay overlay -o lowerdir=/lower,upperdir=/upper,workdir=/work /merged && /bin/bash"]

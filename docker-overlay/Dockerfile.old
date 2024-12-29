@@ -1,0 +1,13 @@
+FROM archlinux
+
+# Atualiza o sistema e instala as ferramentas necessárias para o overlay filesystem
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm util-linux coreutils
+
+# Cria diretórios para montar o overlay
+RUN mkdir -p /upper /work /lower /merged
+
+# Script de inicialização para testar o overlay dentro do contêiner
+CMD mount -t overlay overlay -o lowerdir=/lower,upperdir=/upper,workdir=/work /merged && \
+    echo "Overlay filesystem montado em /merged" && \
+    /bin/bash
