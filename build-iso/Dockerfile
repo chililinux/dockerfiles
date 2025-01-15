@@ -13,7 +13,7 @@ COPY --from=base / /
 # Configurações e arquivos essenciais
 COPY pacman.conf /etc/pacman.conf
 COPY pacman.d /etc/pacman.d
-COPY locale.gen /etc/
+#COPY locale.gen /etc/
 COPY locale.conf /etc/
 COPY usr /usr
 
@@ -47,25 +47,34 @@ RUN pacman -Syyu --noconfirm --needed \
       archlinux-keyring \
       manjaro-keyring \
       biglinux-keyring \
-      community-keyring \
       chili-keyring \
+      chili-livecd-key \
+      community-keyring \
       community-livecd-key \
-      chili-livecd-key --overwrite '*'
+      --overwrite '*'
 
 RUN pacman-key --init && \
     pacman-key --populate
 
 RUN pacman -Sy --needed --noconfirm \
-      base curl duf fakeroot git github-cli gnupg inetutils jq \
-      libarchive manjaro-chrootbuild nano openssh openssl rsync \
-      tmate tree wget zip shfmt pyenv \
+      glibc glib2 base base-devel cmake meson ninja \
+      curl duf fakeroot git github-cli gnupg inetutils jq \
+      binutils libarchive manjaro-chrootbuild nano openssh openssl rsync \
+      tmate tree wget zip shfmt pyenv ncurses yay \
       chili-skel chili-nano-config chili-utils chili-install \
-      chili-fetch chili-clonedisk binutils yay
+      chili-fetch chili-clonedisk gitrepo
+
+#RUN pacman -Sy --needed --noconfirm \
+#      rust
 
 # Limpeza de pacotes e sistema
 RUN pacman -Scc --noconfirm && \
-    rm -rf /var/cache/pacman/pkg/* /usr/share/{doc,man,info} /var/log/* /tmp/* /var/tmp/* && \
-    sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && locale-gen
+    rm -rf /var/cache/pacman/pkg/* /usr/share/{doc,man,info} /var/log/* /tmp/* /var/tmp/*
+
+# Configure language
+RUN sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    sed -i 's/#pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
 
 # Configuração adicional
 RUN echo 'PACKAGER="Vilmar Catafesta <vcatafesta@gmail.com>"' >> /etc/makepkg.conf && \
@@ -87,19 +96,6 @@ RUN chown root:root /usr/bin/sudo && \
     chown root:root /etc/sudo.conf && \
     chmod 4755 /usr/bin/sudo && \
     chmod 0644 /etc/sudo.conf
-
-# Otimização e remoção de arquivos desnecessários
-RUN rm -rf /usr/share/gtk-doc /usr/lib/python*/test /usr/lib/python*/site-packages/*/tests && \
-    find /usr/lib -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete && \
-    find /usr/share/locale -mindepth 1 -maxdepth 1 ! -name 'en_US' -exec rm -r {} + && \
-    rm -rf /var/lib/pacman/sync/* \
-           /usr/share/{doc,man,installed-tests,licenses,xml} \
-           /usr/lib/systemd/{catalog,user} \
-           /usr/share/{pkgconfig,aclocal,bash-completion,vim,zsh} \
-           /usr/include/* /usr/lib/*.a /usr/lib/*.la && \
-    find /usr/share/i18n/locales ! -name 'en_*' -type f -delete && \
-    find /usr/share/i18n/charmaps ! -name 'UTF-8.gz' -type f -delete && \
-    find /usr/lib -type f \( -name '*.mo' -o -name '*.po' \) -delete
 
 # Etapa final
 FROM scratch AS release

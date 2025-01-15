@@ -1,0 +1,32 @@
+services:
+  sws-repochililinux:
+    image: joseluisq/static-web-server:latest
+    container_name: sws-repochililinux
+    restart: always
+    environment:
+      # Nota: esses envs são personalizáveis, mas também opcionais
+      #- SERVER_HOST=127.0.0.1
+      #- SERVER_PORT=80
+      #- SERVER_ROOT=/public
+      - SERVER_DIRECTORY_LISTING=true
+      - SERVER_DIRECTORY_LISTING_ORDER=6
+      - SERVER_DIRECTORY_LISTING_FORMAT=html
+    volumes:
+      - ${HOME}/Docker/RepoChililinux/html:/public
+    #labels:
+    #  - "traefik.enable=true"
+    #  - "traefik.frontend.entryPoints=https"
+    #  - "traefik.backend=localhost_dev"
+    #  - "traefik.frontend.rule=Host:localhost.dev"
+    #  - "traefik.port=80"
+    expose:
+      - "80"
+    networks:
+      - repochililinux-net
+      - npm-net
+
+networks:
+  repochililinux-net:
+      name: repochililinux-net
+  npm-net:
+    external: true
