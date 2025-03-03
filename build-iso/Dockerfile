@@ -48,9 +48,9 @@ RUN pacman -Syyu --noconfirm --needed \
       manjaro-keyring \
       biglinux-keyring \
       chili-keyring \
-      chili-livecd-key \
+#      chili-livecd-key \
       community-keyring \
-      community-livecd-key \
+#     community-livecd-key \
       --overwrite '*'
 
 RUN pacman-key --init && \
@@ -66,6 +66,8 @@ RUN pacman -Sy --needed --noconfirm \
 
 #RUN pacman -Sy --needed --noconfirm \
 #      rust
+
+RUN pacman -Syu --noconfirm --overwrite \*
 
 # Limpeza de pacotes e sistema
 RUN pacman -Scc --noconfirm && \
