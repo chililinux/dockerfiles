@@ -56,7 +56,7 @@ RUN pacman -Syyu --noconfirm --needed \
 RUN pacman-key --init && \
     pacman-key --populate
 
-RUN pacman -Sy --needed --noconfirm \
+RUN pacman -Syu --needed --noconfirm \
       glibc glib2 base base-devel cmake meson ninja \
       curl duf fakeroot git github-cli gnupg inetutils jq \
       binutils libarchive manjaro-chrootbuild nano openssh openssl rsync \
@@ -67,7 +67,8 @@ RUN pacman -Sy --needed --noconfirm \
 #RUN pacman -Sy --needed --noconfirm \
 #      rust
 
-RUN pacman -Syu --noconfirm --overwrite \*
+RUN pacman -Syu --noconfirm --overwrite \* && \
+    pacman -Fy --noconfirm
 
 # Limpeza de pacotes e sistema
 RUN pacman -Scc --noconfirm && \
