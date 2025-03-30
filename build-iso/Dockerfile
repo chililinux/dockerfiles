@@ -60,9 +60,16 @@ RUN pacman -Syu --needed --noconfirm \
       glibc glib2 base base-devel cmake meson ninja \
       curl duf fakeroot git github-cli gnupg inetutils jq \
       binutils libarchive manjaro-chrootbuild nano openssh openssl rsync \
-      tmate tree wget zip shfmt pyenv ncurses yay \
-      chili-skel chili-nano-config chili-utils chili-install \
-      chili-fetch chili-clonedisk gitrepo
+      tmate tree wget zip shfmt pyenv ncurses yay
+
+RUN pacman -Syu --needed --noconfirm \
+      chili-skel
+#      chili-nano-config \
+#      chili-utils \
+#      chili-install \
+#      chili-fetch \
+#      chili-clonedisk \
+#      gitrepo
 
 #RUN pacman -Sy --needed --noconfirm \
 #      rust
